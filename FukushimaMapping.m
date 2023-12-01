@@ -8,7 +8,8 @@ j=1;
 tempdate = unique(datenum(Data.CorrectionBaseDate));
 tarikh = datetime(tempdate, 'ConvertFrom', 'datenum', 'Format', 'dd-MM-yy'); 
 
-figure(Name="Fukushima air dose rate")
+fg1 = figure(1);
+fg1.Name = "Fuksuhima air dose rate";
 geobasemap satellite;
 
 %FDNPP COORDINATE : (37.4211° N, 141.0328° E)
@@ -68,7 +69,7 @@ newdata = array2table(newdata);
 newdata.Properties.VariableNames = ["Latitude" "Longitude" "Value_microSv_hr"];
 
 %% Display output manual prediction
-figure(Name="Fukushima air dose rate")
+fg1
 geoscatter(newdata,"Latitude","Longitude","MarkerEdgeColor","r",Marker="*",MarkerFaceColor="r");
 geobasemap satellite;
 
@@ -83,8 +84,8 @@ for i =2:numel(x)
       str(i-1) = compose(str(i-2)+"\n\n"+strt(i)); 
     end
 end
-gambo = imread("nuclearsymbol.png");
-f = msgbox(str(end),"Monitoring Radiation","custom",gambo);
+%gambo = imread("nuclearsymbol.png");
+f = msgbox(str(end),"Monitoring Radiation");
 
 %% Ask for contour interpolation 
 contq = questdlg('Do you want to interpolate by contour method', ...
