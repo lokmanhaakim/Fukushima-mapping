@@ -84,7 +84,7 @@ for i =2:numel(x)
       str(i-1) = compose(str(i-2)+"\n\n"+strt(i)); 
     end
 end
-%gambo = imread("nuclearsymbol.png");
+
 f = msgbox(str(end),"Monitoring Radiation");
 
 %% Ask for contour interpolation 
