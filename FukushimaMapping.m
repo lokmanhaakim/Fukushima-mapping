@@ -1,4 +1,4 @@
-clc;clearvars;clf;
+clc;clearvars;
 %% Read Dataset 
 Data = readtable("AirDoseRate.csv","Range","A1:E2644");
 date_of_accident = datetime('11-03-2011 02:46:00 PM',"InputFormat","dd-MM-yyyy hh:mm:ss a");
