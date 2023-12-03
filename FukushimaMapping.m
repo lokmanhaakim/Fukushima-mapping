@@ -41,51 +41,51 @@ lctvr = questdlg('Do you want to select specific coordinates', ...
                 y = [y yt];
 
              end
-            f = msgbox("Operation Completed");
+            
+             rangeLat = x;
+             rangeLon = y;
+
+             numObservation = height(Data);
+             datatrain = Data(1:2114,["Latitude" "Longitude" "Value_microSv_hr_"]);
+             datatest = Data(2115:2643,["Latitude" "Longitude" "Value_microSv_hr_"]);
+             MdlTreeBagger = TreeBagger(180,datatrain,"Value_microSv_hr_", Method="regression" ,...
+                    OOBPrediction="on");
+
+             datapred = predict(MdlTreeBagger,datatest);
+             RMSE = rmse(datapred,table2array(datatest(:,"Value_microSv_hr_")));
+             MAPE = mape(datapred,table2array(datatest(:,"Value_microSv_hr_")));
+             ccl = corrcoef(datapred,table2array(datatest(:,"Value_microSv_hr_")));
+             Rsquare = (ccl(1,2))^2;
+
+             datatointep = [rangeLat(1:numel(rangeLon)).',rangeLon.']; 
+             datapred2 = predict(MdlTreeBagger,datatointep);
+             newdata = [datatointep,datapred2];
+             newdata = array2table(newdata);
+             newdata.Properties.VariableNames = ["Latitude" "Longitude" "Value_microSv_hr"];
+
+             fg1
+             geoscatter(newdata,"Latitude","Longitude","MarkerEdgeColor","r",Marker="*",MarkerFaceColor="r");
+             geobasemap satellite;
+
+             for i =1:numel(x)
+                strt(i)= ("Point "+(i)+" ("+(x(i))+"°N , "+(y(i))+"°E ): "+(table2array(newdata(i,end)))+" microCurie/hr");
+             end
+
+             for i =2:numel(x)
+                str(i-1) = compose(strt(i-1)+"\n\n"+strt(i));
+
+                if i>2
+                    str(i-1) = compose(str(i-2)+"\n\n"+strt(i)); 
+                end
+             end
+             
+             f2 = msgbox("Operation Completed");
+             pause(0.8)
+             f1 = msgbox(str(end),"Monitoring Radiation");
+             
     case 'No'
         f = msgbox("Operation Completed");
     end
-
-%% Interpolation Data by machine learning
-rangeLat = x;
-rangeLon = y;
-
-numObservation = height(Data);
-datatrain = Data(1:2114,["Latitude" "Longitude" "Value_microSv_hr_"]);
-datatest = Data(2115:2643,["Latitude" "Longitude" "Value_microSv_hr_"]);
-MdlTreeBagger = TreeBagger(180,datatrain,"Value_microSv_hr_", Method="regression" ,...
-    OOBPrediction="on");
-%% Model Evaluation 
-datapred = predict(MdlTreeBagger,datatest);
-RMSE = rmse(datapred,table2array(datatest(:,"Value_microSv_hr_")));
-MAPE = mape(datapred,table2array(datatest(:,"Value_microSv_hr_")));
-ccl = corrcoef(datapred,table2array(datatest(:,"Value_microSv_hr_")));
-Rsquare = (ccl(1,2))^2;
-
-datatointep = [rangeLat(1:numel(rangeLon)).',rangeLon.']; 
-datapred2 = predict(MdlTreeBagger,datatointep);
-newdata = [datatointep,datapred2];
-newdata = array2table(newdata);
-newdata.Properties.VariableNames = ["Latitude" "Longitude" "Value_microSv_hr"];
-
-%% Display output manual prediction
-fg1
-geoscatter(newdata,"Latitude","Longitude","MarkerEdgeColor","r",Marker="*",MarkerFaceColor="r");
-geobasemap satellite;
-
-for i =1:numel(x)
-    strt(i)= ("Point "+(i)+" ("+(x(i))+"°N , "+(y(i))+"°E ): "+(table2array(newdata(i,end)))+" microCurie/hr");
-end
-
-for i =2:numel(x)
-    str(i-1) = compose(strt(i-1)+"\n\n"+strt(i));
-
-    if i>2
-      str(i-1) = compose(str(i-2)+"\n\n"+strt(i)); 
-    end
-end
-
-f = msgbox(str(end),"Monitoring Radiation");
 
 %% Ask for contour interpolation 
 contq = questdlg('Do you want to interpolate by contour method', ...
@@ -107,10 +107,12 @@ contq = questdlg('Do you want to interpolate by contour method', ...
     end
 %% Radius from centre
 figure(Name="Safe zones")
-% geobasemap landcover
-[lat,lon] = getCoordinates(37.4211,141.0328,200,0:360);
-g = geoplot(lat,lon,Marker="o",Color=[0 0.4470 0.7410],MarkerSize=6,MarkerFaceColor=[0 0.4470 0.7410]);
-% ploth = geoplot([37.4211,lat],[141.0328,lon],Marker ="o",MarkerFaceColor=[0 0.4470 0.7410],LineWidth=6);
+
+centre.lat = 37.4211 ;
+centre.lon = 141.0328;
+[lat,lon] = getCoordinates(centre.lat,centre.lon,40,0:360);
+gc1 = geoplot([37.4211,lat],[141.0328,lon],Marker ="o",MarkerFaceColor=[0 0.4470 0.7410],LineWidth=1,MarkerSize=1);
+
 %% Local function
 function datatointep = meshcon(Data)
     rangeLat = meshgrid(linspace(min(Data.Latitude),max(Data.Latitude),100));
