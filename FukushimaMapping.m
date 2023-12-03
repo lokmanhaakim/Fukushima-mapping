@@ -1,4 +1,4 @@
-clc;clearvars;
+clc;clearvars;clf
 %% Read Dataset 
 Data = readtable("AirDoseRate.csv","Range","A1:E2644");
 date_of_accident = datetime('11-03-2011 02:46:00 PM',"InputFormat","dd-MM-yyyy hh:mm:ss a");
@@ -39,7 +39,7 @@ lctvr = questdlg('Do you want to select specific coordinates', ...
                 [xt,yt,button] = ginput(1);
                 x = [x xt];
                 y = [y yt];
-    
+
              end
             f = msgbox("Operation Completed");
     case 'No'
@@ -105,7 +105,12 @@ contq = questdlg('Do you want to interpolate by contour method', ...
             f = msgbox("Operation Completed");
 
     end
-
+%% Radius from centre
+figure(Name="Safe zones")
+% geobasemap landcover
+[lat,lon] = getCoordinates(37.4211,141.0328,200,0:360);
+g = geoplot(lat,lon,Marker="o",Color=[0 0.4470 0.7410],MarkerSize=6,MarkerFaceColor=[0 0.4470 0.7410]);
+% ploth = geoplot([37.4211,lat],[141.0328,lon],Marker ="o",MarkerFaceColor=[0 0.4470 0.7410],LineWidth=6);
 %% Local function
 function datatointep = meshcon(Data)
     rangeLat = meshgrid(linspace(min(Data.Latitude),max(Data.Latitude),100));
@@ -135,4 +140,21 @@ function plotcon(newdata)
 
 geobasemap satellite;
 
+end
+
+function [d1km d2km]=lldistkm(latlon1,latlon2)
+
+radius=6371;
+lat1=latlon1(1)*pi/180;
+lat2=latlon2(1)*pi/180;
+lon1=latlon1(2)*pi/180;
+lon2=latlon2(2)*pi/180;
+deltaLat=lat2-lat1;
+deltaLon=lon2-lon1;
+a=sin((deltaLat)/2)^2 + cos(lat1)*cos(lat2) * sin(deltaLon/2)^2;
+c=2*atan2(sqrt(a),sqrt(1-a));
+d1km=radius*c;    %Haversine distance
+x=deltaLon*cos((lat1+lat2)/2);
+y=deltaLat;
+d2km=radius*sqrt(x*x + y*y); %Pythagoran distance
 end
