@@ -3,6 +3,7 @@ clc;clearvars;clf
 Data = readtable("AirDoseRate.csv","Range","A1:E2644");
 date_of_accident = datetime('11-03-2011 02:46:00 PM',"InputFormat","dd-MM-yyyy hh:mm:ss a");
 Data.DayAfterAccident = days(Data.CorrectionBaseDate - date_of_accident);
+
 %% Data visualisation
 j=1;
 tempdate = unique(datenum(Data.CorrectionBaseDate));
@@ -12,18 +13,21 @@ fg1 = figure(1);
 fg1.Name = "Fuksuhima air dose rate";
 geobasemap satellite;
 
-%FDNPP COORDINATE : (37.4211° N, 141.0328° E)
-% wmmarker(37.4211,141.0328,'Description',"FDNPP",'Icon',"nuclearsymbol.png");
-
 for i=1:numel(tarikh)
-    geoscatter(Data(Data.CorrectionBaseDate== tarikh(i),:),"Latitude","Longitude","MarkerEdgeColor","b",Marker="o",MarkerFaceColor=[0 0.4470 0.7410]);
-    hold on 
-    pause(0.01)
+    g = geoscatter(Data(Data.CorrectionBaseDate==tarikh(i),:),"Latitude","Longitude","filled",ColorVariable="Value_microSv_hr_");
+    cmap = flipud(autumn(height(Data)));
+    colormap(cmap)
+    colorbar
+    hold on
+    pause(0.01)   
+
 end
 
-title("Plotting radiation")
-%input to enter in the map
+    geoplot(37.4211,141.0328,Marker="diamond",MarkerFaceColor="k",MarkerSize=12);
 
+title("Plotting radiation")
+
+%% Input to enter in the map
 lctvr = questdlg('Do you want to select specific coordinates', ...
 	'Variable', ...
 	'Yes','No','');
@@ -106,12 +110,12 @@ contq = questdlg('Do you want to interpolate by contour method', ...
 
     end
 %% Radius from centre
-figure(Name="Safe zones")
+figure(1)
 
 centre.lat = 37.4211 ;
 centre.lon = 141.0328;
 [lat,lon] = getCoordinates(centre.lat,centre.lon,40,0:360);
-gc1 = geoplot([37.4211,lat],[141.0328,lon],Marker ="o",MarkerFaceColor=[0 0.4470 0.7410],LineWidth=1,MarkerSize=1);
+gc1 = geoplot([37.4211,lat],[141.0328,lon],Marker ="o",MarkerFaceColor=[0 0.4470 0.7410],LineWidth=2,MarkerSize=3);
 
 %% Local function
 function datatointep = meshcon(Data)
@@ -122,25 +126,22 @@ end
 
 function plotcon(newdata)
     figure(Name="Contour interpolation")
+    geobasemap satellite;
     %FDNPP COORDINATE : (37.4211° N, 141.0328° E)
-    geoscatter(37.4211,141.0328,"MarkerEdgeColor","r",Marker="x",MarkerFaceColor="m")
-    for i=1:height(newdata)
-        if newdata.Value_microSv_hr(i)>3.5
-            geoscatter(newdata(i,:),"Latitude","Longitude","MarkerEdgeColor","r",Marker="o",MarkerFaceColor="r");
-            hold on
-        elseif newdata.Value_microSv_hr(i)>0.75
-            geoscatter(newdata(i,:),"Latitude","Longitude","MarkerEdgeColor","y",Marker="o",MarkerFaceColor="y");
-            hold on
-        elseif newdata.Value_microSv_hr(i)>0.4
-            geoscatter(newdata(i,:),"Latitude","Longitude","MarkerEdgeColor","g",Marker="o",MarkerFaceColor="g");
-            hold on
-        else
-            geoscatter(newdata(i,:),"Latitude","Longitude","MarkerEdgeColor","none",Marker="o",MarkerFaceColor="none");
-            hold on
-        end
-    end
+    % h = waitbar(0,'Please wait...');
+    % warning off
+    % for i=1:height(newdata)
+    g2 = geoscatter(newdata,"Latitude","Longitude","filled","ColorVariable","Value_microSv_hr",Marker="o");
+    cmap = flipud(autumn(height(newdata)));
+    colormap(cmap)
+    colorbar
+    hold on
+    geoplot(37.4211,141.0328,Marker="diamond",MarkerFaceColor="k",MarkerSize=12);
+    hold off
+    % end
+    % warning on;
+    % close(h);
 
-geobasemap satellite;
 
 end
 
