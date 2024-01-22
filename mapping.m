@@ -24,7 +24,7 @@ colormap(cmap)
 
 colorbar
 title("Population in Malaysia (2020)")
-
+% test
 %% Create poligon 
 xrange = [-6.7,16.0];
 yrange = [96.5 122.0];
