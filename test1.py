@@ -17,3 +17,16 @@ for i in range (2,4):
 #%%
 for i in range(1,4):
     globals()[f"df{i}"]=  globals()[f"df{i}"].groupby(["district"])["population"].sum()
+
+#%%
+import shapefile as shp  # Requires the pyshp package
+import matplotlib.pyplot as plt
+
+sf = shp.Reader(r"C:\Users\USER\OneDrive\Desktop\Master\nuclear-wind\Mapping\Malaysia_shp\gadm36_MYS_2.shp")
+
+plt.figure()
+for shape in sf.shapeRecords():
+    x = [i[0] for i in shape.shape.points[:]]
+    y = [i[1] for i in shape.shape.points[:]]
+    plt.plot(x,y)
+plt.show()
