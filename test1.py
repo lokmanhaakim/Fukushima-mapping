@@ -1,32 +1,51 @@
-#%%
-# If not already installed, do: pip install pandas fastparquet
-import pandas as pd
+# %% Trajectory
+import os 
+metDir = 'C:/HYSPLIT/met/NARR'
+outDir = 'C:/HYSPLIT/output'
+workingDir = 'C:/HYSPLIT/working'
+os.chdir(workingDir)
+print ('Current directory: ' + os.getcwd())
 
-URL_DATA = 'https://storage.dosm.gov.my/population/population_district.parquet'
+import datetime
 
-df = pd.read_parquet(URL_DATA)
-if 'date' in df.columns: df['date'] = pd.to_datetime(df['date'])
-print(df)
-#%%
-df = df[['date' ,'district','population']]
-df1 = df[df['date']=='2020-01-01']
+lon = '115.2'
+lat = '40.1'
+shour = '06'
+heights = ['100.0','500.0','1000.0']
+hnum = len(heights)
+hours = '48'
+vertical = '0'
+top = '10000.0'
 
-for i in range (2,4):
-    globals()[f"df{i}"] = df[df['date']==f'202{i-1}-01-01']
+fns = []
+fn = 'gdas1.oct22.w2'
+fns.append(fn)
 
-#%%
-for i in range(1,4):
-    globals()[f"df{i}"]=  globals()[f"df{i}"].groupby(["district"])["population"].sum()
+# Set start/end time
+stime = datetime.datetime(2022,10,8)
 
-#%%
-import shapefile as shp  # Requires the pyshp package
-import matplotlib.pyplot as plt
 
-sf = shp.Reader(r"C:\Users\USER\OneDrive\Desktop\Master\nuclear-wind\Mapping\Malaysia_shp\gadm36_MYS_2.shp")
+ctFile = './CONTROL'
+print(stime.strftime('%Y-%m-%d ') + shour + ':00')
+ctf = open(ctFile, 'w')
+ctf.write(stime.strftime('%y %m %d ') + shour + "\n")
+ctf.write(str(hnum) + '\n')
+for i in range(0,hnum):
+  ctf.write(lat + ' ' + lon + ' ' + heights[i] + '\n')
+ctf.write(hours + '\n')
+ctf.write(vertical + '\n')
+ctf.write(top + '\n')
+fnnum = len(fns)
+ctf.write(str(fnnum) + '\n')
+for i in range(0,fnnum):
+    ctf.write(metDir + '/' + '\n')
+    ctf.write(fns[i] + '\n')
+ctf.write(outDir + '/' + '\n')
+outfn = stime.strftime('traj_%Y%m%d')
+ctf.write(outfn)
+ctf.close()
 
-plt.figure()
-for shape in sf.shapeRecords():
-    x = [i[0] for i in shape.shape.points[:]]
-    y = [i[1] for i in shape.shape.points[:]]
-    plt.plot(x,y)
-plt.show()
+os.system("C:\HYSPLIT\exec\hyts_std.exe")
+
+print ('Finish...')
+# %%
