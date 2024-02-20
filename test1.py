@@ -25,7 +25,7 @@ fns.append(fn)
 # Set start/end time
 stime = datetime.datetime(2022,10,8)
 
-##
+######
 ctFile = './CONTROL'
 print(stime.strftime('%Y-%m-%d ') + shour + ':00')
 #
