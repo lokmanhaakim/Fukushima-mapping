@@ -1,4 +1,4 @@
-clc;clear;
+clc;clear;clf;
 %% read geotable  
 districtmap = readgeotable("gadm36_MYS_2.shp");
 districtmap = removevars(districtmap,["GID_0" "NAME_0" "GID_1" "NL_NAME_1" "GID_2" "VARNAME_2" "NL_NAME_2" "TYPE_2" "CC_2"]);
