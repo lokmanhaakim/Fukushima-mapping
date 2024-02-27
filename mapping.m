@@ -9,7 +9,7 @@ population = population(population.Status == "District",:);
 population.Properties.VariableNames(3:end)= ["2000" "2010" "2020"];
 population.Properties.VariableNames(1) = "District";
 population.District = regexprep(population.District,'\(.*',')');
-population.("2020") = str2double(population.("2020"));
+population.("2020") = str2double(population.("2020"));%%
 %% Combine geotable and create map
 for i = 1:numel(districtmap.District)
     [value,idx2] = min(editDistance(population.District,districtmap.District(i)));
